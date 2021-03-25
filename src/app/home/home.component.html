@@ -1,0 +1,26 @@
+<div class="container">
+    <div class="col-md-12 row crawlInfo">
+        <form class="d-flex w-100">
+            <div class="form-group inputField col-md-4">
+                <input class="form-control" type="text" placeholder="URL" id="url-input">
+            </div>
+            <div class="form-group inputField col-md-4">
+                <input class="form-control" type="text" placeholder="Selector" id="selector-input">
+            </div>
+            <input type="button" class="btn btn-primary previewBtn col-md-1" (click)="submitScraperRequest()" value="Preview">
+            <input type="button" class="btn btn-primary linkBtn col-md-1" (click)="getLink()" value="Link">
+        </form>
+    </div>
+
+    <div class="col-md-12 row">
+        <form class="d-flex w-100">
+            <div class="form-group w-100 linkField">
+                <input class="form-control" type="text" placeholder="Link" id="link-input">
+            </div>
+        </form>
+    </div>
+    
+    <div class="col-md-12 row">
+        <pre class="codeblock col-md-12"><code id="codeSample">Preview</code></pre>
+    </div>
+</div>
