@@ -1,0 +1,11 @@
+{
+  "targets": {
+    "ribeye-4baff": {
+      "hosting": {
+        "Ribeye": [
+          "ribeye-4baff"
+        ]
+      }
+    }
+  }
+}

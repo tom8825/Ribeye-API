@@ -1,0 +1,19 @@
+{
+  "hosting": [
+    {
+      "target": "Ribeye",
+      "public": "dist/Ribeye",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ]
+    }
+  ]
+}

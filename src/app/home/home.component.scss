@@ -8,6 +8,11 @@
   min-height: 300px;
 }
 
+.table td,
+.table th {
+  vertical-align: middle !important;
+}
+
 pre:first-line {
   line-height: 0;
 }
@@ -31,4 +36,12 @@ pre:first-line {
   padding-left: 0 !important;
   padding-right: 0 !important;
   margin-right: 20px;
+}
+
+.deleteBtn {
+  margin: 0 auto;
+}
+
+.renewBtn {
+  margin-right: 15px;
 }

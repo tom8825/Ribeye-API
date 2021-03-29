@@ -14,13 +14,50 @@
 
     <div class="col-md-12 row">
         <form class="d-flex w-100">
-            <div class="form-group w-100 linkField">
-                <input class="form-control" type="text" placeholder="Link" id="link-input">
+            <div class="form-group w-100 linkField" data-toggle="tooltip" title="Copy!">
+                <input class="form-control" type="text" placeholder="Link" id="link-input" readonly>
             </div>
         </form>
     </div>
     
     <div class="col-md-12 row">
         <pre class="codeblock col-md-12"><code id="codeSample">Preview</code></pre>
+    </div>
+
+    <div class="col-md-12 row">
+            <table class="table table-bordered col-md-12">
+                <colgroup>
+                    <col span="1" style="width: 10%;">
+                    <col span="1" style="width: 25%;">
+                    <col span="1" style="width: 22.5%;">
+                    <col span="1" style="width: 12.5%;">
+                    <col span="1" style="width: 10%;">
+                    <col span="1" style="width: 17.5%;">
+                 </colgroup>
+                <thead>
+                  <tr>
+                    <th scope="col">Created</th>
+                    <th scope="col">URL</th>
+                    <th scope="col">Selector</th>
+                    <th scope="col">Permalink</th>
+                    <th scope="col">Expires</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="link-data-row" *ngFor="let link of linkList">
+                    <td class="link-data-added">{{link.DateAdded}}</td>
+                    <td class="link-data-url">{{link.Url}}</td>
+                    <td class="link-data-selector">{{link.Selector}}</td>
+                    <td class="link-data-permalink"><a href="{{link.Link}}" target="_blank">Link</a></td>
+                    <td class="link-data-expiry">{{link.ExpiryDate}}</td>
+                    <td>
+                        <input type="button" class="btn btn-success renewBtn" (click)="renewLink(link.id)" value="Renew">
+                        <input type="button" class="btn btn-danger deleteBtn" (click)="deleteLink(link.id)" value="Delete">
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            
     </div>
 </div>
