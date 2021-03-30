@@ -8,6 +8,7 @@ import {
 import { AngularFirestoreCollection } from '@angular/fire/firestore';
 import { Observable } from 'rxjs';
 import { Link } from 'src/app/link.model';
+import * as moment from 'moment/moment';
 //import { linkSync } from 'fs';
 
 @Component({
@@ -85,10 +86,6 @@ export class HomeComponent implements OnInit {
   async GetLinkListDb(){
     this.afs.collection('Links').valueChanges({ idField: 'id' }).subscribe(val => {
       this.linkList = val;
-      //console.log(val);
-      for(let link of this.linkList){
-        this.compareDates(link.ExpiryDate)
-      }
     });
 
     
@@ -111,13 +108,8 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  compareDates(d){
-    let dt1 = new Date(Date.now()); //today
-    let dt2 = new Date(d); //exp
+  checkExpiry(expiry){
 
-    let comparedDates = Math.floor((Date.UTC(dt2.getFullYear(), dt2.getMonth(), dt2.getDate()) - Date.UTC(dt1.getFullYear(), dt1.getMonth(), dt1.getDate()) ) /(1000 * 60 * 60 * 24));
-
-    //console.log("Compared Dates: " + comparedDates.toString());
   }
 
   isUrlValid(userInput) {
@@ -126,5 +118,16 @@ export class HomeComponent implements OnInit {
         return false;
     else
         return true;
+  }
+
+  showHideRenewBtn(expires){
+    let dateNow = new Date(Date.now());
+    let expiresDate = new Date(expires);
+    expiresDate = new Date(expiresDate.setDate(expiresDate.getDate()-7));
+    if(dateNow >= expiresDate){
+      return true;
+    }else{
+      return false;
+    }
   }
 }

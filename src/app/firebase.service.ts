@@ -27,7 +27,7 @@ export class FirebaseService {
   async postLinkToDb(url, selector) {
     let messageCollections = this.firestore.collection('Links');
     let expDate = this.add_months(new Date(), 1).toString();
-    let dateAdded = this.datePipe.transform(new Date(), 'dd/MM/yyyy').toString();
+    let dateAdded = this.datePipe.transform(new Date(), 'MM/dd/yyyy').toString();
     let link = await this.getBitlyLink(url, selector);
     messageCollections.add({ Url: url, Selector: selector, DateAdded:  dateAdded, ExpiryDate: expDate, Link: link });
 
@@ -47,12 +47,12 @@ export class FirebaseService {
 
   add_months(dt, n) 
   {
-    return this.datePipe.transform(new Date(dt.setMonth(dt.getMonth() + n)), 'dd/MM/yyyy');     
+    return this.datePipe.transform(new Date(dt.setMonth(dt.getMonth() + n)), 'MM/dd/yyyy');     
   }
 
   add_days(dt, n) 
   {
-    return this.datePipe.transform(new Date(dt.setDay(dt.getDay() + n)), 'dd/MM/yyyy');     
+    return this.datePipe.transform(new Date(dt.setDay(dt.getDay() + n)), 'MM/dd/yyyy');     
   }
 
 
