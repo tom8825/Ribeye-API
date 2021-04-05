@@ -5,38 +5,72 @@ import {
   AngularFirestore,
   AngularFirestoreDocument,
 } from "@angular/fire/firestore";
-import { AngularFirestoreCollection } from '@angular/fire/firestore';
-import { Observable } from 'rxjs';
-import { Link } from 'src/app/link.model';
-import * as moment from 'moment/moment';
-//import { linkSync } from 'fs';
+import { AuthService } from "../auth.service";
+import { DefaultUrlSerializer, UrlTree } from '@angular/router';
 
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss']
+  styleUrls: ['./home.component.scss'],
 })
+
 export class HomeComponent implements OnInit {
   linkList: any;
   responsePreview: any;
   dateToday: Date;
   bitlyLink: string;
+  currentUserId: any;
 
-  constructor(private _firebaseService: FirebaseService, private afs: AngularFirestore) { 
+  displayedColumns = ['Created', 'URL', 'CSS Selector', 'Link', 'Expired', 'Options', 'Schedule'];
+  //dataSource = new HomeComponent();
+
+  isExpansionDetailRow = (i: number, row: Object) => row.hasOwnProperty('detailRow');
+  expandedElement: any;
+
+  constructor(private _firebaseService: FirebaseService, private afs: AngularFirestore, public auth: AuthService) { 
     
   }
 
-  ngOnInit() {
-    this.GetLinkListDb();
+  ngOnInit() { 
     this.dateToday = new Date();
+    this.checkUserLogin();
+
+    $('.collapse').on('show.bs.collapse', function () {
+      $('.collapse.in').collapse('hide');
+    });
+  }
+
+  logIn(userdetails) {
+    this.auth.googleSignin().then((res) => {
+      console.log(this.auth.currentUser);
+
+      this.auth.currentUser$.subscribe(val => {
+        this.GetLinkListDb(val.uid);
+        this.currentUserId = val.uid;
+      });
+
+      // if(this.auth.currentUserData["uid"] != null && this.auth.currentUserData["uid"] != ""){
+      //   this.GetLinkListDb();
+      // }
+    });
+  }
+
+  checkUserLogin() {
+    let user = this.auth.user$.subscribe((res) => {
+      if (res != null) {
+        //console.log("yes: " + res.email);
+        this.GetLinkListDb(res.uid);
+      }
+    })
   }
 
   submitScraperRequest() {
     var url = $("#url-input").val();
     var selector = $("#selector-input").val();
-
+    var attribute = $("#attribute-input").val();
+    
     if(url && selector){
-      this.getScraperResponse(url, selector);
+      this.getScraperResponse(url, selector, attribute);
     }else{
       alert("Please add a url and a selector")
     }
@@ -45,9 +79,10 @@ export class HomeComponent implements OnInit {
   async getLink(){
     var url = $("#url-input").val();
     var selector = $("#selector-input").val();
+    var attribute = $("#attribute-input").val();
 
     if(this.isUrlValid(url) && selector){
-      var urlString = "https://web.scraper.workers.dev/?url="+url+"&selector="+selector+"&pretty=true";
+      var urlString = "https://web.scraper.workers.dev/?url="+url+"&selector="+selector+"&attr="+attribute+"&pretty=true";
       this.bitlyLink = await this.postLinkToDb();
       await console.log(this.bitlyLink);
       await $("#link-input").val(this.bitlyLink);
@@ -56,8 +91,8 @@ export class HomeComponent implements OnInit {
     }
   }
 
-  getScraperResponse(url, selector){
-    var urlSting = "https://web.scraper.workers.dev/?url="+url+"&selector="+selector+"&pretty=true";
+  getScraperResponse(url, selector, attribute){
+    var urlSting = "https://web.scraper.workers.dev/?url="+url+"&selector="+selector+"&attr="+attribute+"&pretty=true";
     $.ajax({
       type: "get", url: urlSting,
       success: function (data, text) {
@@ -76,19 +111,19 @@ export class HomeComponent implements OnInit {
     var selector = $("#selector-input").val();
 
     if(url && selector){
-      return await this._firebaseService.postLinkToDb(url, selector);
+      let link = await this._firebaseService.postLinkToDb(url, selector, this.currentUserId);
+      this.GetLinkListDb(this.currentUserId);
+      return link;
     }else{
       alert("Please add a url and a selector")
     }
     
   }
 
-  async GetLinkListDb(){
-    this.afs.collection('Links').valueChanges({ idField: 'id' }).subscribe(val => {
+  async GetLinkListDb(uid){
+    this.afs.collection('Links', ref => ref.where('Uid', '==', uid)).valueChanges({ idField: 'id' }).subscribe(val => {
       this.linkList = val;
     });
-
-    
   }
 
   deleteLink(id){
@@ -129,5 +164,28 @@ export class HomeComponent implements OnInit {
     }else{
       return false;
     }
+  }
+
+  hasExpired(expires){
+    let dateNow = new Date(Date.now());
+    let expiresDate = new Date(expires);
+    
+    if(dateNow >= expiresDate){
+      return true;
+    }else{
+      return false;
+    }
+  }
+
+  getFavicon(linkUrl){
+    var pattern = /^((http|https|ftp):\/\/)/;
+
+    if(!pattern.test(linkUrl)) {
+      linkUrl = "http://" + linkUrl;
+    }
+    var l = document.createElement("a");
+    l.href = linkUrl;
+    
+    return l.protocol + "//" + l.hostname + "/favicon.ico";
   }
 }

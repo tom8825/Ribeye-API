@@ -8,6 +8,7 @@ import { AppComponent } from './app.component';
 import { HomeComponent } from './home/home.component';
 import { DatePipe } from '@angular/common';
 import { MomentModule } from 'angular2-moment';
+import { AngularFireAuthModule } from "@angular/fire/auth";
 
 var firebaseConfig = {
   apiKey: "AIzaSyDypTjfTEQrKqw2UXffZKNu7mA3fZlKZ6k",
@@ -30,7 +31,8 @@ var firebaseConfig = {
     AngularFireModule.initializeApp(firebaseConfig),
     AngularFirestoreModule,
     AngularFireStorageModule,
-    MomentModule
+    MomentModule,
+    AngularFireAuthModule,
   ],
   providers: [DatePipe],
   bootstrap: [AppComponent]

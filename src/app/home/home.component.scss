@@ -1,11 +1,31 @@
+.col-md-12 {
+  padding-right: 0 !important;
+  padding-left: 0 !important;
+}
+
 .codeblock {
-  padding: 1.5em;
+  padding: 1.5em !important;
   font-size: 0.9em;
-  background: #4a4c69;
-  color: #fff;
+  background: #25262b;
+  color: #969aa3;
   cursor: text;
   overflow: auto;
   min-height: 300px;
+}
+
+pre {
+  white-space: pre-wrap; /* Since CSS 2.1 */
+  white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
+  white-space: -pre-wrap; /* Opera 4-6 */
+  white-space: -o-pre-wrap; /* Opera 7 */
+  word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+
+table,
+th,
+td {
+  border-color: #969aa3;
+  color: #969aa3;
 }
 
 .table td,
@@ -21,7 +41,8 @@ pre:first-line {
 .linkBtn {
   width: 150px;
   height: 38px;
-  margin-right: 20px;
+  //margin-right: 20px;
+  flex-grow: 1 !important;
 }
 
 .link-input {
@@ -36,12 +57,84 @@ pre:first-line {
   padding-left: 0 !important;
   padding-right: 0 !important;
   margin-right: 20px;
+  flex-grow: 1;
+  justify-content: space-between;
+}
+
+.inputField:last-of-type {
+  margin-right: 0px !important;
 }
 
 .deleteBtn {
   margin: 0 auto;
+  margin-left: 0px !important;
 }
 
 .renewBtn {
   margin-right: 15px;
+}
+
+.navbar {
+  height: 64px !important;
+}
+
+#userDisplayName {
+  color: white;
+}
+
+.signOut {
+  cursor: pointer;
+}
+
+.url-button-container {
+  width: 100%;
+  display: inline-block;
+  white-space: nowrap;
+  margin: 0px auto;
+}
+
+input[type="button"] + input[type="button"] {
+  margin-left: 20px;
+}
+
+.loggedOutSteak {
+  font-size: 30em;
+  text-align: center;
+}
+
+.loggedOutSteak i {
+  //color: lightslategray;
+  vertical-align: top;
+}
+
+.linkField {
+  padding-left: 0px !important;
+  padding-right: 0px !important;
+  margin-right: 20px;
+}
+
+.hiddenRow {
+  padding: 0 !important;
+}
+
+td {
+  border-color: #454d55 !important;
+  border-top: 1px solid #454d55 !important;
+  border-bottom: 1px solid #454d55 !important;
+}
+
+th {
+  border-color: #454d55 !important;
+  border-top: 2px solid #454d55 !important;
+  border-bottom: 1px solid #454d55 !important;
+}
+
+.link-data-url img {
+  margin-right: 10px;
+}
+
+.link-data-url,
+.link-data-selector {
+  font-size: 0.8em;
+  overflow: hidden;
 }

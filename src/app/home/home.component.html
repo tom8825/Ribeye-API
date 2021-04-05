@@ -1,63 +1,188 @@
 <div class="container">
-    <div class="col-md-12 row crawlInfo">
+    <nav class="navbar navbar-dark bg-dark">
+        <a class="navbar-brand" href="#">Chilli:src</a>
+        <div id="userInformation" class="d-flex" *ngIf="auth.user$ | async as user; else login">
+            <div class="mr-3">
+              <div id="userDisplayName">{{ user.displayName }}</div>
+              <a class="signOut" (click)="auth.signOut()">Log Out</a>
+            </div>
+            <img id="userPhoto" class="rounded-circle" width="45" height="45" src="{{ user.photoURL }}" alt="" /><br />
+        </div>
+    </nav>
+    <div class="row">
+        <ng-template #login>
+            <div class="login-btn" (click)="logIn()">
+              <div class="col-md-12">
+                <a class="btn btn-outline-light" role="button" style="text-transform: none; color: white;">
+                  <img width="20px" style="margin-bottom: 3px; margin-right: 5px;" alt="Google sign-in"
+                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Google_%22G%22_Logo.svg/512px-Google_%22G%22_Logo.svg.png" />
+                  Login with Google
+                </a>
+              </div>
+            </div>
+          </ng-template>
+    </div>
+</div>
+<div class="container" *ngIf="auth.user$ | async as user; else loggedOut">
+    <div class="col-md-12 crawlInfo">
         <form class="d-flex w-100">
-            <div class="form-group inputField col-md-4">
+            <div class="form-group inputField">
                 <input class="form-control" type="text" placeholder="URL" id="url-input">
             </div>
-            <div class="form-group inputField col-md-4">
+            <div class="form-group inputField">
                 <input class="form-control" type="text" placeholder="CSS Selector" id="selector-input">
             </div>
-            <input type="button" class="btn btn-primary previewBtn col-md-1" (click)="submitScraperRequest()" value="Preview">
-            <input type="button" class="btn btn-primary linkBtn col-md-2" (click)="getLink()" value="Create Link">
+            <div class="form-group inputField">
+                <input class="form-control" type="text" placeholder="Attribute" id="attribute-input">
+            </div>
         </form>
     </div>
 
-    <div class="col-md-12 row">
+    <div class="col-md-12">
         <form class="d-flex w-100">
-            <div class="form-group w-100 linkField" data-toggle="tooltip" title="Copy!">
+            <div class="form-group col-md-8 linkField" data-toggle="tooltip" title="Copy!">
                 <input class="form-control" type="text" placeholder="Link" id="link-input" readonly>
+            </div>
+            <div class="url-button-container d-flex">
+                <input type="button" class="btn btn-primary previewBtn" (click)="submitScraperRequest()" value="Preview">
+                <input type="button" class="btn btn-primary linkBtn" (click)="getLink()" value="Create Link">
             </div>
         </form>
     </div>
     
-    <div class="col-md-12 row">
+    <div class="col-md-12">
         <pre class="codeblock col-md-12"><code id="codeSample">Preview</code></pre>
     </div>
 
-    <div class="col-md-12 row">
-            <table class="table table-bordered col-md-12">
+    <div class="col-md-12">
+            <table class="table table-striped table-dark col-md-12">
                 <colgroup>
                     <col span="1" style="width: 10%;">
                     <col span="1" style="width: 25%;">
-                    <col span="1" style="width: 22.5%;">
-                    <col span="1" style="width: 12.5%;">
+                    <col span="1" style="width: 24%;">
+                    <col span="1" style="width: 7.5%;">
                     <col span="1" style="width: 10%;">
                     <col span="1" style="width: 17.5%;">
+                    <col span="1" style="width: 7%;">
                  </colgroup>
                 <thead>
                   <tr>
                     <th scope="col">Created</th>
                     <th scope="col">URL</th>
                     <th scope="col">CSS Selector</th>
-                    <th scope="col">Permalink</th>
+                    <th scope="col">Link</th>
                     <th scope="col">Expires</th>
-                    <th scope="col"></th>
+                    <th scope="col">Options</th>
+                    
                   </tr>
                 </thead>
                 <tbody>
-                  <tr class="link-data-row" *ngFor="let link of linkList">
-                    <td class="link-data-added">{{link.DateAdded}}</td>
-                    <td class="link-data-url">{{link.Url}}</td>
-                    <td class="link-data-selector">{{link.Selector}}</td>
-                    <td class="link-data-permalink"><a href="{{link.Link}}" target="_blank">Link</a></td>
-                    <td class="link-data-expiry">{{link.ExpiryDate}}</td>
-                    <td>
-                        <input type="button" class="btn btn-success renewBtn" (click)="renewLink(link.id)" value="Renew"  *ngIf="showHideRenewBtn(link.ExpiryDate)">
-                        <input type="button" class="btn btn-danger deleteBtn" (click)="deleteLink(link.id)" value="Delete">
-                    </td>
-                  </tr>
+                    <ng-container *ngFor="let link of linkList">
+                        <tr class="link-data-row" data-toggle="collapse"  [attr.data-target]="'#' + link.id" [style.background-color]="hasExpired(link.ExpiryDate) ? '#5c2a2a' : 'inherit'">
+                            <td class="link-data-added">{{link.DateAdded}}</td>
+                            <td class="link-data-url"><img [attr.src]="getFavicon(link.Url)" alt="url favicon" width="32"> {{link.Url}}</td>
+                            <td class="link-data-selector">{{link.Selector}}</td>
+                            <td class="link-data-permalink"><a href="{{link.Link}}" target="_blank">Link</a></td>
+                            <td class="link-data-expiry">{{link.ExpiryDate}}</td>
+                            <td>
+                                <input type="button" class="btn btn-success renewBtn" (click)="renewLink(link.id)" value="Renew"  *ngIf="showHideRenewBtn(link.ExpiryDate)">
+                                <input type="button" class="btn btn-danger deleteBtn" (click)="deleteLink(link.id)" value="Delete">
+                            </td>
+                            <td>
+                                <i class="fas fa-angle-down"></i>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="6" class="hiddenRow">
+                                <div [attr.id]="link.id" class="collapse">
+                                    <div class="p-4">
+                                        <p>{{link.DateAdded}}</p>
+                                        <p>{{link.ExpiryDate}}</p>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        
+                    </ng-container>
                 </tbody>
               </table>
-            
     </div>
 </div>
+
+<div class="container" *ngIf="auth.user$ | async as user; else loggedOut">
+<div id="accordion">
+    <div class="card">
+      <div class="card-header" id="headingOne">
+        <h5 class="mb-0">
+          <button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            How it works
+          </button>
+        </h5>
+      </div>
+  
+      <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordion">
+        <div class="card-body">
+            <p>If the url and selector fields are set, the response value will always be JSON.</p>
+
+            <p>If only one node is found on the page matching the selector, the result will be a string. If more than one node is found, the result will be an array of strings.</p>
+
+            <p>If an attr is provided, the result will be a string matching only the first node found which has a non-empty value for that HTML attribute.</p>
+        </div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header" id="headingTwo">
+        <h5 class="mb-0">
+          <button class="btn btn-link collapsed" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            URL and CSS Selector
+          </button>
+        </h5>
+      </div>
+      <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordion">
+        <div class="card-body">
+            <ul>
+                <li>Supports https:// and http:// protocols.</li>
+                <li>
+                    If a protocol isn’t found, http:// is prepended.
+                </li>
+                <li style="box-sizing: border-box;">Supports the same set of CSS selectors as Cloudflare Workers&apos;&nbsp;<a href="https://developers.cloudflare.com/workers/reference/apis/html-rewriter/#selectors" rel="nofollow" style="box-sizing: border-box; background-color: initial; color: var(--color-text-link); text-decoration: none;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>HTMLRewriter</code> class</a>
+                    <ul style="box-sizing: border-box; padding-left: 2em; margin-top: 0px; margin-bottom: 0px;">
+                        <li style="box-sizing: border-box;">As of Oct 10, 2019, this includes:<ul style="box-sizing: border-box; padding-left: 2em; margin-top: 0px; margin-bottom: 0px;">
+                                <li style="box-sizing: border-box;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>*</code> &ndash; any element</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E</code> &ndash; any element of type E</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E:not(s)</code> &ndash; an E element that does not match either compound selector s</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E.warning</code> &ndash; an E element belonging to the class warning</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E#myid</code> &ndash; an E element with ID equal to myid.</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E[foo]</code> &ndash; an E element with a foo attribute</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E[foo=&quot;bar&quot;]</code> &ndash; an E element whose foo attribute value is exactly equal to bar</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E[foo=&quot;bar&quot; i]</code> &ndash; an E element whose foo attribute value is exactly equal to any (ASCII-range) case-permutation of bar</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E[foo=&quot;bar&quot; s]</code> &ndash; an E element whose foo attribute value is exactly and case-sensitively equal to bar</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E[foo~=&quot;bar&quot;]</code> &ndash; an E element whose foo attribute value is a list of whitespace-separated values, one of which is exactly equal to bar</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E[foo^=&quot;bar&quot;]</code> &ndash; an E element whose foo attribute value begins exactly with the string bar</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E[foo$=&quot;bar&quot;]</code> &ndash; an E element whose foo attribute value ends exactly with the string bar</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E[foo*=&quot;bar&quot;]</code> &ndash; an E element whose foo attribute value contains the substring bar</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E[foo|=&quot;en&quot;]</code> &ndash; an E element whose foo attribute value is a hyphen-separated list of values beginning with en</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E F</code> &ndash; an F element descendant of an E element</li>
+                                <li style="box-sizing: border-box; margin-top: 0.25em;"><code style='box-sizing: border-box; font-family: SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; font-size: 13.6px; padding: 0.2em 0.4em; margin: 0px; background-color: var(--color-markdown-code-bg); border-radius: 6px;'>E &gt; F</code> &ndash; an F element child of an E element</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </li>
+                <li style="box-sizing: border-box; margin-top: 0.25em;">Supports multiple selectors delimited with a comma.</li>
+            </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<ng-template #loggedOut>
+    <div class="container">      
+            <div>
+                Login using the link above.
+                <div class="loggedOutSteak">
+                    <i class="fas fa-pepper-hot"></i>
+                </div>
+            </div>
+    </div>
+</ng-template>

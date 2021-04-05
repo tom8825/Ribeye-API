@@ -24,12 +24,12 @@ export class FirebaseService {
     return this.LinkList$.asObservable();
   }
 
-  async postLinkToDb(url, selector) {
+  async postLinkToDb(url, selector, uid) {
     let messageCollections = this.firestore.collection('Links');
     let expDate = this.add_months(new Date(), 1).toString();
     let dateAdded = this.datePipe.transform(new Date(), 'MM/dd/yyyy').toString();
     let link = await this.getBitlyLink(url, selector);
-    messageCollections.add({ Url: url, Selector: selector, DateAdded:  dateAdded, ExpiryDate: expDate, Link: link });
+    messageCollections.add({ Url: url, Selector: selector, DateAdded:  dateAdded, ExpiryDate: expDate, Link: link, Uid: uid });
 
     return link;
   }
