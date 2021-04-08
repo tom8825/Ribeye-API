@@ -40,12 +40,13 @@
 
     <div class="col-md-12">
         <form class="d-flex w-100">
-            <div class="form-group col-md-8 linkField" data-toggle="tooltip" title="Copy!">
+            <div class="form-group col-md-6 linkField" data-toggle="tooltip" title="Copy!">
                 <input class="form-control" type="text" placeholder="Link" id="link-input" readonly>
             </div>
             <div class="url-button-container d-flex">
                 <input type="button" class="btn btn-primary previewBtn" (click)="submitScraperRequest()" value="Preview">
                 <input type="button" class="btn btn-primary linkBtn" (click)="getLink()" value="Create Link">
+                <button type="button" class="btn btn-danger restartBtn" id="restartBtn" (click)="clearInputs()" value="Create Link"><i class="fas fa-redo-alt"></i></button>
             </div>
         </form>
     </div>
@@ -57,32 +58,32 @@
     <div class="col-md-12">
             <table class="table table-striped table-dark col-md-12">
                 <colgroup>
-                    <col span="1" style="width: 10%;">
-                    <col span="1" style="width: 25%;">
+                    <!-- <col span="1" style="width: 10%;"> -->
+                    <col span="1" style="width: 30%;">
                     <col span="1" style="width: 24%;">
                     <col span="1" style="width: 7.5%;">
-                    <col span="1" style="width: 10%;">
+                    <col span="1" style="width: 7.5%;">
                     <col span="1" style="width: 17.5%;">
-                    <col span="1" style="width: 7%;">
+                    <col span="1" style="width: 4%;">
                  </colgroup>
                 <thead>
                   <tr>
-                    <th scope="col">Created</th>
+                    <!-- <th scope="col">Created</th> -->
                     <th scope="col">URL</th>
                     <th scope="col">CSS Selector</th>
-                    <th scope="col">Link</th>
+                    <th scope="col">Attr</th>
                     <th scope="col">Expires</th>
                     <th scope="col">Options</th>
-                    
+                    <th scope="col"></th>
                   </tr>
                 </thead>
                 <tbody>
                     <ng-container *ngFor="let link of linkList">
                         <tr class="link-data-row" data-toggle="collapse"  [attr.data-target]="'#' + link.id" [style.background-color]="hasExpired(link.ExpiryDate) ? '#5c2a2a' : 'inherit'">
-                            <td class="link-data-added">{{link.DateAdded}}</td>
-                            <td class="link-data-url"><img [attr.src]="getFavicon(link.Url)" alt="url favicon" width="32"> {{link.Url}}</td>
+                            <!-- <td class="link-data-added">{{link.DateAdded}}</td> -->
+                            <td class="link-data-url"><img [attr.src]="getFavicon(link.Url)" (error)="onImgError($event, link.Url)" alt="url favicon" width="32"> {{link.Url}}</td>
                             <td class="link-data-selector">{{link.Selector}}</td>
-                            <td class="link-data-permalink"><a href="{{link.Link}}" target="_blank">Link</a></td>
+                            <td class="link-data-permalink">{{link.Attribute}}</td>
                             <td class="link-data-expiry">{{link.ExpiryDate}}</td>
                             <td>
                                 <input type="button" class="btn btn-success renewBtn" (click)="renewLink(link.id)" value="Renew"  *ngIf="showHideRenewBtn(link.ExpiryDate)">
@@ -95,9 +96,34 @@
                         <tr>
                             <td colspan="6" class="hiddenRow">
                                 <div [attr.id]="link.id" class="collapse">
-                                    <div class="p-4">
-                                        <p>{{link.DateAdded}}</p>
-                                        <p>{{link.ExpiryDate}}</p>
+                                    <div class="d-flex">
+                                        <div class="p-4 tbl-linkInput d-flex flex-column col-md-6">
+                                            <div>Date Created: {{link.DateAdded}}</div>
+                                        
+    
+                                            <div class="d-flex w-100">
+                                                <div class="d-flex input-group mt-2 ">
+                                                    <div class="input-group-prepend">
+                                                      <span class="input-group-text" id="basic-addon1">Link</span>
+                                                    </div>
+                                                    <input type="text" class="form-control" placeholder="Link" value="{{link.Link}}" readonly>
+                                                </div>
+                                                <a href="{{link.Link}}" target="_blank"><i class="fas fa-external-link-alt mt-2"></i></a>
+                                            </div>
+    
+                                            <div class="d-flex w-100">
+                                                <div class="d-flex input-group mt-2">
+                                                    <div class="input-group-prepend">
+                                                      <span class="input-group-text" id="basic-addon1">URL</span>
+                                                    </div>
+                                                    <input type="text" class="form-control" placeholder="URL" value="{{link.Url}}" readonly>
+                                                </div>
+                                                <a href="{{link.Url}}" target="_blank"><i class="fas fa-external-link-alt mt-2"></i></a>
+                                            </div>
+                                        </div>
+                                        <div class="p-4 d-inline-block col-md-6">
+                                            <input type="button" class="btn btn-warning deleteBtn float-right" value="Run!">
+                                        </div>
                                     </div>
                                 </div>
                             </td>

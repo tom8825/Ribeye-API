@@ -7,6 +7,8 @@ import {
 } from "@angular/fire/firestore";
 import { AuthService } from "../auth.service";
 import { DefaultUrlSerializer, UrlTree } from '@angular/router';
+import { Observable } from 'rxjs';
+import { User } from "../user.model";
 
 @Component({
   selector: 'app-home',
@@ -20,6 +22,7 @@ export class HomeComponent implements OnInit {
   dateToday: Date;
   bitlyLink: string;
   currentUserId: any;
+  userData: User;
 
   displayedColumns = ['Created', 'URL', 'CSS Selector', 'Link', 'Expired', 'Options', 'Schedule'];
   //dataSource = new HomeComponent();
@@ -33,7 +36,12 @@ export class HomeComponent implements OnInit {
 
   ngOnInit() { 
     this.dateToday = new Date();
-    this.checkUserLogin();
+    //this.checkUserLogin();
+    this.auth.user$.subscribe(val => {
+      //console.log(val)
+      this.userData = val;
+      this.GetLinkListDb(this.userData.uid)
+    });
 
     $('.collapse').on('show.bs.collapse', function () {
       $('.collapse.in').collapse('hide');
@@ -44,10 +52,11 @@ export class HomeComponent implements OnInit {
     this.auth.googleSignin().then((res) => {
       console.log(this.auth.currentUser);
 
-      this.auth.currentUser$.subscribe(val => {
-        this.GetLinkListDb(val.uid);
-        this.currentUserId = val.uid;
-      });
+      // this.auth.currentUser$.subscribe(val => {
+      //   this.GetLinkListDb(val.uid);
+      //   this.currentUserId = val.uid;
+      //   this.userData = val;
+      // });
 
       // if(this.auth.currentUserData["uid"] != null && this.auth.currentUserData["uid"] != ""){
       //   this.GetLinkListDb();
@@ -58,15 +67,19 @@ export class HomeComponent implements OnInit {
   checkUserLogin() {
     let user = this.auth.user$.subscribe((res) => {
       if (res != null) {
-        //console.log("yes: " + res.email);
+        console.log("yes: " + res.email);
         this.GetLinkListDb(res.uid);
+      }else{
+        console.log("no user logged in");
+        localStorage.removeItem("u");
+        //$("#loginModal").modal("toggle");
       }
     })
   }
 
   submitScraperRequest() {
     var url = $("#url-input").val();
-    var selector = $("#selector-input").val();
+    var selector = $("#selector-input").val().replace('#', '%23');
     var attribute = $("#attribute-input").val();
     
     if(url && selector){
@@ -82,7 +95,7 @@ export class HomeComponent implements OnInit {
     var attribute = $("#attribute-input").val();
 
     if(this.isUrlValid(url) && selector){
-      var urlString = "https://web.scraper.workers.dev/?url="+url+"&selector="+selector+"&attr="+attribute+"&pretty=true";
+      var urlString = "https://web.tlparker1988.workers.dev/?url="+url+"&selector="+selector+"&attr="+attribute+"&pretty=true";
       this.bitlyLink = await this.postLinkToDb();
       await console.log(this.bitlyLink);
       await $("#link-input").val(this.bitlyLink);
@@ -92,7 +105,7 @@ export class HomeComponent implements OnInit {
   }
 
   getScraperResponse(url, selector, attribute){
-    var urlSting = "https://web.scraper.workers.dev/?url="+url+"&selector="+selector+"&attr="+attribute+"&pretty=true";
+    var urlSting = "https://web.tlparker1988.workers.dev/?url="+url+"&selector="+selector+"&attr="+attribute+"&pretty=true";
     $.ajax({
       type: "get", url: urlSting,
       success: function (data, text) {
@@ -108,11 +121,12 @@ export class HomeComponent implements OnInit {
 
   async postLinkToDb(){
     var url = $("#url-input").val();
-    var selector = $("#selector-input").val();
+    var selector = $("#selector-input").val().replace('#', '%23');
+    var attribute = $("#attribute-input").val();
 
     if(url && selector){
-      let link = await this._firebaseService.postLinkToDb(url, selector, this.currentUserId);
-      this.GetLinkListDb(this.currentUserId);
+      let link = await this._firebaseService.postLinkToDb(url, selector, attribute, this.userData.uid);
+      this.GetLinkListDb(this.userData.uid);
       return link;
     }else{
       alert("Please add a url and a selector")
@@ -143,8 +157,12 @@ export class HomeComponent implements OnInit {
     });
   }
 
-  checkExpiry(expiry){
-
+  clearInputs(){
+    $("#url-input").val("");
+    $("#selector-input").val("");
+    $("#attribute-input").val("");
+    $("#link-input").val("");
+    $("#codeSample").text("Preview");
   }
 
   isUrlValid(userInput) {
@@ -187,5 +205,18 @@ export class HomeComponent implements OnInit {
     l.href = linkUrl;
     
     return l.protocol + "//" + l.hostname + "/favicon.ico";
+  }
+
+  onImgError(event, linkUrl){
+    let baseUrl = "https://eu.ui-avatars.com/api/?background=random&size=32&rounded=true&name="
+
+    var pattern = /^((http|https|ftp):\/\/)/;
+    if(!pattern.test(linkUrl)) {
+      linkUrl = "http://" + linkUrl;
+    }
+    var l = document.createElement("a");
+    l.href = linkUrl;
+
+    event.target.src = baseUrl + l.hostname;
   }
 }

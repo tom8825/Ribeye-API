@@ -45,6 +45,13 @@ pre:first-line {
   flex-grow: 1 !important;
 }
 
+.restartBtn {
+  width: 50px;
+  height: 38px;
+  flex-grow: 1 !important;
+  margin-left: 20px;
+}
+
 .link-input {
   width: 300px;
 }
@@ -129,6 +136,10 @@ th {
   border-bottom: 1px solid #454d55 !important;
 }
 
+.link-data-row {
+  cursor: pointer;
+}
+
 .link-data-url img {
   margin-right: 10px;
 }
@@ -137,4 +148,24 @@ th {
 .link-data-selector {
   font-size: 0.8em;
   overflow: hidden;
+}
+
+.tbl-linkInput {
+  input {
+    margin-right: 10px;
+  }
+
+  a {
+    display: flex;
+  }
+
+  a i {
+    font-size: 20px;
+    display: flex;
+    cursor: pointer;
+  }
+
+  a i:before {
+    margin: auto 0;
+  }
 }

@@ -24,20 +24,21 @@ export class FirebaseService {
     return this.LinkList$.asObservable();
   }
 
-  async postLinkToDb(url, selector, uid) {
+  async postLinkToDb(url, selector, attribute, uid) {
+    //console.log(url, selector, attribute, uid);
     let messageCollections = this.firestore.collection('Links');
     let expDate = this.add_months(new Date(), 1).toString();
     let dateAdded = this.datePipe.transform(new Date(), 'MM/dd/yyyy').toString();
-    let link = await this.getBitlyLink(url, selector);
-    messageCollections.add({ Url: url, Selector: selector, DateAdded:  dateAdded, ExpiryDate: expDate, Link: link, Uid: uid });
+    let link = await this.getBitlyLink(url, selector, attribute);
+    messageCollections.add({ Url: url, Selector: selector, DateAdded:  dateAdded, ExpiryDate: expDate, Link: link, Uid: uid, Attribute: attribute });
 
     return link;
   }
 
-  async getBitlyLink(url, selector){
+  async getBitlyLink(url, selector, attribute){
     const BitlyClient = require('bitly').BitlyClient;
     const bitly = new BitlyClient('af4e8f9df040e1c5a7763f24fa4fb918709b124f');
-    const urlSting = "https://web.scraper.workers.dev/?url="+url+"&selector="+selector+"&pretty=true"; //TODO needs to be changed to an angular url
+    const urlSting = "https://web.scraper.workers.dev/?url="+url+"&selector="+selector+"&pretty=true&attr="+attribute; //TODO needs to be changed to an angular url
 
     const response = await bitly.shorten(urlSting);
     console.log(`Your shortened bitlink is ${response.link}`);
