@@ -24,15 +24,41 @@ export class FirebaseService {
     return this.LinkList$.asObservable();
   }
 
-  async postLinkToDb(url, selector, attribute, uid) {
+  async postLinkToDb(url, selector, attribute, uid, scrapeResp) {
     //console.log(url, selector, attribute, uid);
     let messageCollections = this.firestore.collection('Links');
     let expDate = this.add_months(new Date(), 1).toString();
     let dateAdded = this.datePipe.transform(new Date(), 'MM/dd/yyyy').toString();
     let link = await this.getBitlyLink(url, selector, attribute);
-    messageCollections.add({ Url: url, Selector: selector, DateAdded:  dateAdded, ExpiryDate: expDate, Link: link, Uid: uid, Attribute: attribute });
+    
+    messageCollections.add({ Url: url, Selector: selector, DateAdded:  dateAdded, ExpiryDate: expDate, Link: link, Uid: uid, Attribute: attribute, CurrentData: scrapeResp, CurrentDataDate: dateAdded });
 
     return link;
+  }
+
+  async updateLinkDb(docId, scrapeResp) {
+    let currentDate = this.datePipe.transform(new Date(), 'MM/dd/yyyy').toString();
+    let previousData;
+    let previousDataDate;
+    let document;
+    await this.firestore.collection('Links').doc(docId).ref.get().then(function (doc) {
+      if (doc.exists) {
+        document = doc.data();
+      } else {
+        console.log("There is no document!");
+      }
+    }).catch(function (error) {
+      console.log("There was an error getting your document:", error);
+    });
+
+    if(document["CurrentData"] != null){
+      this.firestore.collection('Links').doc(docId).update({CurrentData: scrapeResp, CurrentDataDate: currentDate, PreviousData: document["CurrentData"], PreviousDataDate: document["CurrentDataDate"] });
+      console.log("link data updated")
+    }else{
+      this.firestore.collection('Links').doc(docId).update({CurrentData: scrapeResp, CurrentDataDate: currentDate});
+      console.log("no current data");
+    }
+    
   }
 
   async getBitlyLink(url, selector, attribute){

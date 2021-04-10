@@ -94,11 +94,16 @@ export class HomeComponent implements OnInit {
     var selector = $("#selector-input").val();
     var attribute = $("#attribute-input").val();
 
+    $(".create-link-spinner").removeClass("d-none");
+    $(".linkBtnText").toggle();
+
     if(this.isUrlValid(url) && selector){
       var urlString = "https://web.tlparker1988.workers.dev/?url="+url+"&selector="+selector+"&attr="+attribute+"&pretty=true";
       this.bitlyLink = await this.postLinkToDb();
       await console.log(this.bitlyLink);
       await $("#link-input").val(this.bitlyLink);
+      await $(".linkBtnText").toggle();
+      await $(".create-link-spinner").addClass("d-none");
     }else{
       alert("Please add a url and a selector")
     }
@@ -124,14 +129,43 @@ export class HomeComponent implements OnInit {
     var selector = $("#selector-input").val().replace('#', '%23');
     var attribute = $("#attribute-input").val();
 
-    if(url && selector){
-      let link = await this._firebaseService.postLinkToDb(url, selector, attribute, this.userData.uid);
+    var scrapeResp = await this.getScraperResponseForDb(url, selector, attribute);
+
+    
+
+    if(url && selector && scrapeResp){
+      let link = await this._firebaseService.postLinkToDb(url, selector, attribute, this.userData.uid, scrapeResp);
       this.GetLinkListDb(this.userData.uid);
       return link;
     }else{
       alert("Please add a url and a selector")
     }
     
+  }
+
+  async runCurrentTask(url, selector, attribute, docId){
+    let scrapeRes = await this.getScraperResponseForDb(url, selector, attribute);
+    //console.log(url, selector, attribute);
+    //console.log(scrapeRes);
+    this._firebaseService.updateLinkDb(docId, scrapeRes);
+  }
+
+  async getScraperResponseForDb(url, selector, attribute){
+    var urlSting = "https://web.tlparker1988.workers.dev/?url="+url+"&selector="+selector+"&attr="+attribute+"&pretty=true";
+    let res;
+    await $.ajax({
+      type: "get", url: urlSting,
+      success: function (data, text) {
+        this.responsePreview = data.result;
+        //console.log(this.responsePreview);
+        res = JSON.stringify(this.responsePreview, null, 2);
+        
+      },
+      error: function (request, status, error) {
+        alert(request.responseText);
+      }
+    });
+    return res;
   }
 
   async GetLinkListDb(uid){
@@ -218,5 +252,18 @@ export class HomeComponent implements OnInit {
     l.href = linkUrl;
 
     event.target.src = baseUrl + l.hostname;
+  }
+
+  getJSONDiff(currentLinkData, prevLinkData){
+    var diff = require('variable-diff');
+    var defaultOptions = {
+      indent: '  ',
+      newLine: '\n',
+      
+      color: true
+    };
+    let res = diff(JSON.parse(prevLinkData), JSON.parse(currentLinkData), defaultOptions);
+
+    return res.text;
   }
 }

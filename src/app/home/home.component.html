@@ -44,8 +44,12 @@
                 <input class="form-control" type="text" placeholder="Link" id="link-input" readonly>
             </div>
             <div class="url-button-container d-flex">
-                <input type="button" class="btn btn-primary previewBtn" (click)="submitScraperRequest()" value="Preview">
-                <input type="button" class="btn btn-primary linkBtn" (click)="getLink()" value="Create Link">
+                <button type="button" class="btn btn-primary previewBtn" (click)="submitScraperRequest()">Preview</button>
+                <button type="button" class="btn btn-primary linkBtn" (click)="getLink()"><span class="linkBtnText">Create Link</span>
+                    <div class="spinner-border spinner-border-sm d-none create-link-spinner" role="status">
+                        <span class="sr-only">Loading...</span>
+                    </div>
+                </button>
                 <button type="button" class="btn btn-danger restartBtn" id="restartBtn" (click)="clearInputs()" value="Create Link"><i class="fas fa-redo-alt"></i></button>
             </div>
         </form>
@@ -121,10 +125,52 @@
                                                 <a href="{{link.Url}}" target="_blank"><i class="fas fa-external-link-alt mt-2"></i></a>
                                             </div>
                                         </div>
-                                        <div class="p-4 d-inline-block col-md-6">
-                                            <input type="button" class="btn btn-warning deleteBtn float-right" value="Run!">
+    
+                                    </div>
+                                    
+                                    <p class="p-4 col-md-6 justify-content-between value-code-blocks">
+                                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#prevValueCard" aria-expanded="false" aria-controls="collapseExample" *ngIf="link.PreviousData">
+                                            Previous Value
+                                        </button>
+
+                                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#currentValueCard" aria-expanded="false" aria-controls="collapseExample">
+                                            Current Value
+                                        </button>
+
+                                        <button class="btn btn-primary" type="button" data-toggle="collapse" data-target="#diffCard" aria-expanded="false" aria-controls="collapseExample" *ngIf="link.PreviousData">
+                                            Difference
+                                        </button>
+
+                                        <input type="button" class="btn btn-warning deleteBtn float-right" (click)="runCurrentTask(link.Url, link.Selector, link.Attribute, link.id)" value="Run!">
+                                    </p>
+
+                                    <div class="collapse" id="prevValueCard" *ngIf="link.PreviousData">
+                                        <div class="code-value-body">
+                                            <div class="flex-grow-1 m-4"><div class="mb-4">Previous Value <small>({{link.PreviousDataDate}})</small></div>
+                                            <pre class="codeblock"><code id="codeSample" placeholder="n/a">
+{{link.PreviousData}}
+                                            </code></pre></div>
                                         </div>
                                     </div>
+
+                                    <div class="collapse" id="currentValueCard">
+                                        <div class="code-value-body">
+                                            <div class="flex-grow-1 m-4"><div class="mb-4">Current Value <small>({{link.CurrentDataDate}})</small></div>
+                                            <pre class="codeblock"><code id="codeSample">
+{{link.CurrentData}}
+                                            </code></pre></div>
+                                        </div>
+                                    </div>
+
+                                    <div class="collapse" id="diffCard" *ngIf="link.PreviousData">
+                                        <div class="code-value-body">
+                                            <div class="flex-grow-1 m-4"><div class="mb-4">Difference <small>({{link.PreviousDataDate}} => {{link.CurrentDataDate}})</small></div>
+                                            <pre class="codeblock"><code id="codeSample">
+{{getJSONDiff(link.CurrentData, link.PreviousData)}}
+                                            </code></pre></div>
+                                        </div>
+                                    </div>
+
                                 </div>
                             </td>
                         </tr>
