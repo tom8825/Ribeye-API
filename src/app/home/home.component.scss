@@ -18,7 +18,7 @@ pre {
   white-space: -moz-pre-wrap; /* Mozilla, since 1999 */
   white-space: -pre-wrap; /* Opera 4-6 */
   white-space: -o-pre-wrap; /* Opera 7 */
-  word-wrap: break-word; /* Internet Explorer 5.5+ */
+  word-break: break-all !important; /* Internet Explorer 5.5+ */
 }
 
 .code-value-body {
@@ -174,4 +174,30 @@ th {
   a i:before {
     margin: auto 0;
   }
+}
+
+#codeSample {
+  word-break: break-all !important;
+}
+
+.card {
+  border-radius: 0 !important;
+  background-color: #343a40;
+}
+
+.collapseOne,
+.collapseTwo {
+  background-color: #505355;
+  color: rgb(150, 154, 163);
+}
+
+.card-body,
+.headingOne,
+.headingTwo {
+  color: rgb(150, 154, 163);
+}
+
+i {
+  color: rgb(150, 154, 163);
+  vertical-align: middle !important;
 }

@@ -264,6 +264,12 @@ export class HomeComponent implements OnInit {
     };
     let res = diff(JSON.parse(prevLinkData), JSON.parse(currentLinkData), defaultOptions);
 
-    return res.text;
+    return (res.text) ? res.text : "No differences found";
+  }
+
+  getJSONLength(currentLinkData, prevLinkData){
+    var diff = require('changeset');
+    let res = diff(JSON.parse(prevLinkData), JSON.parse(currentLinkData));
+    return res.length;
   }
 }

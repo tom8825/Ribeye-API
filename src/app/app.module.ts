@@ -9,6 +9,7 @@ import { HomeComponent } from './home/home.component';
 import { DatePipe } from '@angular/common';
 import { MomentModule } from 'angular2-moment';
 import { AngularFireAuthModule } from "@angular/fire/auth";
+import { CookieBannerComponent } from './cookie-banner/cookie-banner.component';
 
 var firebaseConfig = {
   apiKey: "AIzaSyDypTjfTEQrKqw2UXffZKNu7mA3fZlKZ6k",
@@ -23,7 +24,8 @@ var firebaseConfig = {
 @NgModule({
   declarations: [
     AppComponent,
-    HomeComponent
+    HomeComponent,
+    CookieBannerComponent
   ],
   imports: [
     BrowserModule,
