@@ -272,4 +272,6 @@ export class HomeComponent implements OnInit {
     let res = diff(JSON.parse(prevLinkData), JSON.parse(currentLinkData));
     return res.length;
   }
+
+  //this is a comment to trigger a CF deploy
 }
